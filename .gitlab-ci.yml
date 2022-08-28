@@ -1,0 +1,21 @@
+---
+
+image: clojure:temurin-11-lein-alpine
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .m2/repository
+
+stages:
+  - build
+
+build:
+  stage: build
+  script:
+    - lein with-profile cicd do clean, check, compile, test, run
+    - lein with-profile cicd run -- --letters "cadevrsoi" --size 7
+  only:
+    changes:
+      - "**/*.clj"
+      - .gitlab-ci.yml

@@ -1,0 +1,12 @@
+.calva/
+.clj-kondo/
+.joyride
+.lsp/
+*.class
+*.jar
+/.lein-*
+/.nrepl-port
+/checkouts
+/classes
+/target
+profiles.clj
