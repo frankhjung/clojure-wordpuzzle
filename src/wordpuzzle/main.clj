@@ -1,8 +1,8 @@
 (ns wordpuzzle.main
+  (:gen-class)
   (:require [clojure.tools.cli :refer [parse-opts]]
             [clojure.string :refer [join]]
-            [wordpuzzle.library :refer [valid-size? valid-letters? get-words]])
-  (:gen-class))
+            [wordpuzzle.library :refer [valid-size? valid-letters? get-words]]))
 
 (defn usage "Wordpuzzle usage message"
   [options-summary]
@@ -40,21 +40,23 @@
   (str "ERROR: "
        (join \newline errors)))
 
-(defn validate-args "Check command line arguments."
+(defn validate-args "Check command line arguments"
   [args]
   (let [{:keys [arguments errors options summary]} (parse-opts args cli-options)]
     (cond
       ; help
       (:help options)
-      {:exit-message (usage summary) :ok? true}
+      {:exit-message (usage summary), :ok? true}
       ;; errors
       errors
-      {:exit-message (error-msg errors) :ok? false}
+      {:exit-message (error-msg errors), :ok? false}
       ;; no arguments but have letters so pass options to main
-      (and (= 0 (count arguments)) (not-empty (:letters options)))
+      (or (< 0 (count arguments)) (empty? (:letters options)))
+      {:exit-message (usage summary), :ok? true}
+      (and (= 0 (count arguments)) (seq (:letters options)))
       {:options options} ; return with user options
       :else ; failed custom validation so exit with usage summary
-      {:exit-message (usage summary)})))
+      {:exit-message (usage summary), :ok? false})))
 
 (defn exit "Print message and return with status"
   [status msg]
@@ -65,7 +67,7 @@
   [& args]
   (let [{:keys [options exit-message ok?]} (validate-args args)]
     (if exit-message
-      (exit (if ok? 0 1) exit-message) ; have an error
+      (exit (if ok? 0 1) exit-message)
       ; else get and show words
       (let [{:keys [letters size dictionary]} options
             words (get-words letters size dictionary)]

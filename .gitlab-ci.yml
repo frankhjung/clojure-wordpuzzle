@@ -13,8 +13,9 @@ stages:
 build:
   stage: build
   script:
-    - lein with-profile cicd do clean, check, compile, test, run
-    - lein with-profile cicd run -- --letters "cadevrsoi" --size 7
+    - lein with-profile cicd do clean, check, compile, test, uberjar, run
+    - java -cp target/uberjar/wordpuzzle-0.1.0-standalone.jar
+        clojure.main -m wordpuzzle.main --letters "cadevrsoi" --size 7
   only:
     changes:
       - "**/*.clj"
