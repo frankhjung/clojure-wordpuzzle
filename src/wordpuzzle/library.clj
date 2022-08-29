@@ -15,7 +15,8 @@
     (cond
       (empty? word) true
       (empty? letters) false
-      :else (recur xs (replace-first word x "")))))
+      :else
+      (recur xs (replace-first word x "")))))
 
 (defn get-words "Get list of valid words from the dictionary"
   [letters size dictionary]

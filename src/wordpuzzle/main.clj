@@ -6,20 +6,23 @@
 
 (defn usage "Wordpuzzle usage message"
   [options-summary]
-  (->> ["USAGE wordpuzzle.main [options]"
-        ""
-        "DESCRIPTION"
-        ""
-        "Solve word puzzles like those at nineletterword.tompaton.com"
-        "List all valid words given a a list of letters.  Each word must"
-        "contain the mandatory letter, which is the first in the list."
-        ""
-        "OPTIONS"
-        ""
-        options-summary
-        ""
-        "Copyright © 2022 Frank H Jung, GPLv3.0"]
-       (join \newline)))
+  (join \newline
+        ["USAGE wordpuzzle.main [options] letters"
+         ""
+         "DESCRIPTION"
+         ""
+         "Solve word puzzles like those at nineletterword.tompaton.com"
+         "List all valid words given a a list of letters.  Each word must"
+         "contain the mandatory letter, which is the first in the list."
+         ""
+         "OPTIONS"
+         ""
+         options-summary
+         ""
+         "ARGUMENTS"
+         "  letters  9 lowercase letters [REQUIRED]"
+         ""
+         "Copyright © 2022 Frank H Jung, GPLv3.0"]))
 
 (def cli-options "Process command line arguments"
   [["-d" "--dictionary" "Alternate word dictionary"
@@ -30,32 +33,26 @@
     :default 4
     :parse-fn #(Integer/parseInt %)
     :validate [#(valid-size? %) "Must be a value from 1 to 9"]]
-   ["-l" "--letters" "Nine letters to make words"
-    :required "STRING"
-    :validate [#(valid-letters? %) "Must be 9 lowercase letters only"]]
    ["-h" "--help" "This help text"]])
 
-(defn error-msg "Print errors"
+(defn error-msg "Show option validation errors "
   [errors]
-  (str "ERROR: "
-       (join \newline errors)))
+  (str (join \newline errors)))
 
 (defn validate-args "Check command line arguments"
   [args]
   (let [{:keys [arguments errors options summary]} (parse-opts args cli-options)]
     (cond
       ; help
-      (:help options)
-      {:exit-message (usage summary), :ok? true}
-      ;; errors
-      errors
-      {:exit-message (error-msg errors), :ok? false}
-      ;; no arguments but have letters so pass options to main
-      (or (< 0 (count arguments)) (empty? (:letters options)))
-      {:exit-message (usage summary), :ok? true}
-      (and (= 0 (count arguments)) (seq (:letters options)))
-      {:options options} ; return with user options
-      :else ; failed custom validation so exit with usage summary
+      (:help options) {:exit-message (usage summary), :ok? true}
+      ; errors
+      errors {:exit-message (error-msg errors), :ok? false}
+      ; require letters argument
+      (= 0 (count arguments)) {:exit-message (usage summary), :ok? true}
+      ; check 9 valid letters provided
+      (valid-letters? (first arguments)) {:letters (first arguments), :options options}
+      ; else - failed custom validation so exit with usage summary
+      :else
       {:exit-message (usage summary), :ok? false})))
 
 (defn exit "Print message and return with status"
@@ -65,10 +62,10 @@
 
 (defn -main "Main - process arguments and show matching words"
   [& args]
-  (let [{:keys [options exit-message ok?]} (validate-args args)]
+  (let [{:keys [letters options exit-message ok?]} (validate-args args)]
     (if exit-message
       (exit (if ok? 0 1) exit-message)
       ; else get and show words
-      (let [{:keys [letters size dictionary]} options
+      (let [{:keys [size dictionary]} options
             words (get-words letters size dictionary)]
         (dorun (map println words))))))

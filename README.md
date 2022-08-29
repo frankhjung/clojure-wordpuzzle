@@ -24,7 +24,7 @@ lein build
 ### Example - lein run
 
 ```bash
-$ lein run -- --size 7 --letters cadevrsoi
+$ lein run -- --size 7 cadevrsoi
 varicose
 sidecar
 divorce
@@ -49,4 +49,4 @@ java -cp target/uberjar/wordpuzzle-0.1.0-standalone.jar clojure.main -m wordpuzz
 
 ## LICENSE
 
-[LICENSE]
+[LICENSE](LICENSE)
