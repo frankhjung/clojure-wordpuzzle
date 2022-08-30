@@ -7,25 +7,31 @@
 (defn usage "Wordpuzzle usage message"
   [options-summary]
   (join \newline
-        ["USAGE wordpuzzle.main [options] letters"
+        ["NAME"
+         ""
+         "  Solve word puzzles like those at nineletterword.tompaton.com"
+         ""
+         "SYNOPSIS"
+         ""
+         "  wordpuzzle.main [-h|--help]"
+         "  wordpuzzle.main [-d|--dictionary PATH] [-s|--size INT] <-l|--letters STRING>"
          ""
          "DESCRIPTION"
          ""
-         "Solve word puzzles like those at nineletterword.tompaton.com"
-         "List all valid words given a a list of letters.  Each word must"
-         "contain the mandatory letter, which is the first in the list."
+         "  List all valid words using provided letters.  Each word must contain"
+         "  the mandatory letter which is the first character in the letters list."
          ""
          "OPTIONS"
          ""
          options-summary
          ""
-         "ARGUMENTS"
-         "  letters  9 lowercase letters [REQUIRED]"
+         "LICENSE"
          ""
-         "Copyright © 2022 Frank H Jung, GPLv3.0"]))
+         "  Copyright © 2022 Frank H Jung, GPLv3.0"]))
 
 (def cli-options "Process command line arguments"
-  [["-d" "--dictionary" "Alternate word dictionary"
+  [["-h" "--help" "This help text"]
+   ["-d" "--dictionary" "Alternate word dictionary"
     :default "resources/dictionary"
     :required "STRING"]
    ["-s" "--size INT" "Minimum word size of 1 to 9 letters"
@@ -33,7 +39,16 @@
     :default 4
     :parse-fn #(Integer/parseInt %)
     :validate [#(valid-size? %) "Must be a value from 1 to 9"]]
-   ["-h" "--help" "This help text"]])
+   ["-l" "--letters" "[REQUIRED] 9 lowercase letters to make words"
+    :required "STRING"
+    :validate [#(valid-letters? %) "Must be 9 lowercase letters"]]])
+
+; Required options
+(def required-opts "Letters is required" #{:letters})
+
+(defn missing-required? "Check if any required options are missing"
+  [opts]
+  (not-every? opts required-opts))
 
 (defn error-msg "Show option validation errors "
   [errors]
@@ -47,13 +62,13 @@
       (:help options) {:exit-message (usage summary), :ok? true}
       ; errors
       errors {:exit-message (error-msg errors), :ok? false}
-      ; require letters argument
-      (= 0 (count arguments)) {:exit-message (usage summary), :ok? true}
-      ; check 9 valid letters provided
-      (valid-letters? (first arguments)) {:letters (first arguments), :options options}
-      ; else - failed custom validation so exit with usage summary
+      ; show usage if arguments provided
+      (> (count arguments) 0) {:exit-message (usage summary), :ok? true}
+      ; check letters option provided
+      (missing-required? options) {:exit-message (usage summary), :ok? false}
+      ; else - get words using options provided
       :else
-      {:exit-message (usage summary), :ok? false})))
+      {:options options})))
 
 (defn exit "Print message and return with status"
   [status msg]
@@ -62,10 +77,10 @@
 
 (defn -main "Main - process arguments and show matching words"
   [& args]
-  (let [{:keys [letters options exit-message ok?]} (validate-args args)]
+  (let [{:keys [options exit-message ok?]} (validate-args args)]
     (if exit-message
       (exit (if ok? 0 1) exit-message)
       ; else get and show words
-      (let [{:keys [size dictionary]} options
+      (let [{:keys [letters size dictionary]} options
             words (get-words letters size dictionary)]
         (dorun (map println words))))))

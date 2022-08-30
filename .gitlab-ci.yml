@@ -7,14 +7,11 @@ cache:
   paths:
     - .m2/repository
 
-stages:
-  - build
-
 build:
   stage: build
   script:
-    - lein with-profile cicd do check, compile, test, run
-    - lein with-profile cicd run -- --size 7 cadevrsoi
+    - lein with-profile cicd do check, compile, test, run -- --help
+    - lein with-profile cicd run -- --size=7 --letters=cadevrsoi
   only:
     changes:
       - "**/*.clj"
