@@ -2,6 +2,7 @@
   (:gen-class)
   (:require [clojure.tools.cli :refer [parse-opts]]
             [clojure.string :refer [join]]
+            [clojure.java.io :as io]
             [wordpuzzle.library :refer [valid-size? valid-letters? get-words]]))
 
 (defn usage "Wordpuzzle usage message"
@@ -29,11 +30,14 @@
          ""
          "  Copyright © 2022 Frank H Jung, GPLv3.0"]))
 
+(def letters-required "Need 9 lowercase letters")
+
 (def cli-options "Process command line arguments"
   [["-h" "--help" "This help text"]
    ["-d" "--dictionary" "Alternate word dictionary"
     :default "resources/dictionary"
-    :required "STRING"]
+    :required "STRING"
+    :validate [#(.exists (io/file %)) "Dictionary file not found"]]
    ["-s" "--size INT" "Minimum word size of 1 to 9 letters"
     :required "INT"
     :default 4
@@ -41,7 +45,7 @@
     :validate [#(valid-size? %) "Must be a value from 1 to 9"]]
    ["-l" "--letters" "[REQUIRED] 9 lowercase letters to make words"
     :required "STRING"
-    :validate [#(valid-letters? %) "Must be 9 lowercase letters"]]])
+    :validate [#(valid-letters? %) letters-required]]])
 
 ; Required options
 (def required-opts "Letters is required" #{:letters})
@@ -58,15 +62,15 @@
   [args]
   (let [{:keys [arguments errors options summary]} (parse-opts args cli-options)]
     (cond
-      ; help
+      ; show help
       (:help options) {:exit-message (usage summary), :ok? true}
-      ; errors
+      ; show errors
       errors {:exit-message (error-msg errors), :ok? false}
       ; show usage if arguments provided
       (> (count arguments) 0) {:exit-message (usage summary), :ok? true}
-      ; check letters option provided
-      (missing-required? options) {:exit-message (usage summary), :ok? false}
-      ; else - get words using options provided
+      ; check that letters option provided
+      (missing-required? options) {:exit-message letters-required, :ok? false}
+      ; get words using options provided
       :else
       {:options options})))
 

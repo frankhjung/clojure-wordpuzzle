@@ -21,10 +21,38 @@ lein build
 
 ## Run
 
+```bash
+$ lein run -- --help
+NAME
+
+  Solve word puzzles like those at nineletterword.tompaton.com
+
+SYNOPSIS
+
+  wordpuzzle.main [-h|--help]
+  wordpuzzle.main [-d|--dictionary PATH] [-s|--size INT] <-l|--letters STRING>
+
+DESCRIPTION
+
+  List all valid words using provided letters.  Each word must contain
+  the mandatory letter which is the first character in the letters list.
+
+OPTIONS
+
+  -h, --help                                     This help text
+  -d, --dictionary STRING  resources/dictionary  Alternate word dictionary
+  -s, --size INT           4                     Minimum word size of 1 to 9 letters
+  -l, --letters STRING                           [REQUIRED] 9 lowercase letters to make words
+
+LICENSE
+
+  Copyright © 2022 Frank H Jung, GPLv3.0
+```
+
 ### Example - lein run
 
 ```bash
-$ lein run -- --size 7 cadevrsoi
+$ lein run -- --size=7 --letters=cadevrsoi
 varicose
 sidecar
 divorce
