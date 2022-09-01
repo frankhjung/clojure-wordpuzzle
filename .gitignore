@@ -2,6 +2,7 @@
 .clj-kondo/
 .joyride
 .lsp/
+.trunk/
 *.class
 *.jar
 /.lein-*

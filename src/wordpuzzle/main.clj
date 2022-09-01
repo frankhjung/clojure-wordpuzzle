@@ -5,10 +5,11 @@
             [clojure.java.io :as io]
             [wordpuzzle.library :refer [valid-size? valid-letters? get-words]]))
 
-(defn usage "Wordpuzzle usage message"
+(defn usage "Wordpuzzle usage"
   [options-summary]
   (join \newline
-        ["NAME"
+        [""
+         "NAME"
          ""
          "  Solve word puzzles like those at nineletterword.tompaton.com"
          ""
@@ -58,7 +59,7 @@
   [errors]
   (str (join \newline errors)))
 
-(defn validate-args "Check command line arguments"
+(defn validate-opts "Check command line arguments"
   [args]
   (let [{:keys [arguments errors options summary]} (parse-opts args cli-options)]
     (cond
@@ -69,7 +70,7 @@
       ; show usage if arguments provided
       (> (count arguments) 0) {:exit-message (usage summary), :ok? true}
       ; check that letters option provided
-      (missing-required? options) {:exit-message letters-required, :ok? false}
+      (missing-required? options) {:exit-message (str letters-required (usage summary)), :ok? false}
       ; get words using options provided
       :else
       {:options options})))
@@ -79,12 +80,17 @@
   (println msg)
   (System/exit status))
 
-(defn -main "Main - process arguments and show matching words"
+(defn solve "Solve word puzzle"
+  [letters size dictionary]
+  (let [words (get-words letters size dictionary)]
+    (dorun (map println words))))
+
+(defn -main "Main - read options and solve word puzzle"
   [& args]
-  (let [{:keys [options exit-message ok?]} (validate-args args)]
+  (let [{:keys [options exit-message ok?]} (validate-opts args)]
     (if exit-message
+      ; exit with message
       (exit (if ok? 0 1) exit-message)
       ; else get and show words
-      (let [{:keys [letters size dictionary]} options
-            words (get-words letters size dictionary)]
-        (dorun (map println words))))))
+      (let [{:keys [letters size dictionary]} options]
+        (solve letters size dictionary)))))

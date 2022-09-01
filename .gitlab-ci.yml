@@ -10,9 +10,13 @@ cache:
 build:
   stage: build
   script:
-    - lein with-profile cicd do check, compile, test, run -- --help
+    - lein with-profile cicd do check, compile, test, uberjar
+    - lein with-profile cicd run -- --help
     - lein with-profile cicd run -- --size=7 --letters=cadevrsoi
   only:
     changes:
       - "**/*.clj"
       - .gitlab-ci.yml
+  artifacts:
+    paths:
+      - target

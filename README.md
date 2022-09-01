@@ -5,11 +5,11 @@ Puzzle](https://nineletterword.tompaton.com/adevcrsoi/).
 
 See also the other language solutions:
 
-* [Haskell](https://gitlab.com/frankhjung1/haskell-wordpuzzle)
-* [Java](https://gitlab.com/frankhjung1/java-wordpuzzle)
-* [Kotlin](https://gitlab.com/frankhjung1/kotlin-wordpuzzle)
-* [Go](https://gitlab.com/frankhjung1/go-wordpuzzle)
-* [Python](https://gitlab.com/frankhjung1/python-wordpuzzle)
+- [Haskell](https://gitlab.com/frankhjung1/haskell-wordpuzzle)
+- [Java](https://gitlab.com/frankhjung1/java-wordpuzzle)
+- [Kotlin](https://gitlab.com/frankhjung1/kotlin-wordpuzzle)
+- [Go](https://gitlab.com/frankhjung1/go-wordpuzzle)
+- [Python](https://gitlab.com/frankhjung1/python-wordpuzzle)
 
 ## Build
 
