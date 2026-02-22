@@ -1,4 +1,4 @@
-(defproject wordpuzzle "0.1.0-SNAPSHOT"
+(defproject wordpuzzle "0.2.0"
   :description "Clojure solution to letter word puzzles"
   :url "https://gitlab.com/frankhjung1/clojure-wordpuzzle"
   :license {:name "MIT License"

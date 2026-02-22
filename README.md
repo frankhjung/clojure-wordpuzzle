@@ -1,7 +1,7 @@
-# Clojure Solution to 9 Letter Word Puzzle
+# Clojure Solution to Word Puzzles
 
 Explore Clojure to solve [9 Letter word
-Puzzle](https://nineletterword.tompaton.com/adevcrsoi/).
+Puzzle](https://nineletterword.tompaton.com/adevcrsoi/) and [NYT Spelling Bee](https://www.nytimes.com/puzzles/spelling-bee) puzzles.
 
 See also the other language solutions:
 
@@ -26,12 +26,12 @@ $ lein run -- --help
 
 NAME
 
-  Solve word puzzles like those at nineletterword.tompaton.com
+  Solve word puzzles like those at nineletterword.tompaton.com and NYT Spelling Bee
 
 SYNOPSIS
 
   wordpuzzle.main [-h|--help]
-  wordpuzzle.main [-d|--dictionary PATH] [-s|--size INT] <-l|--letters STRING>
+  wordpuzzle.main [-d|--dictionary PATH] [-s|--size INT] <-l|--letters STRING> [-r|--repeats]
 
 DESCRIPTION
 
@@ -42,24 +42,42 @@ OPTIONS
 
   -h, --help                                     This help text
   -d, --dictionary STRING  resources/dictionary  Alternate word dictionary
-  -s, --size INT           4                     Minimum word size of 4 to 9 letters
+  -s, --size INT           4                     Minimum word size
   -l, --letters STRING                           [REQUIRED] 7+ lowercase letters to make words
+  -r, --repeats                                  Letters can be repeated (e.g., Spelling Bee)
 
 LICENSE
 
   Copyright © 2022-2026 Frank H Jung, MIT License
 ```
 
-### Example - lein run
+### Example - 9 letter puzzle
 
 ```bash
-$ lein run -- --size=7 --letters=cadevrsoi
+$ lein with-profile dev run -- --size=7 --letters=cadevrsoi
 varicose
 sidecar
 divorce
 discover
 divorces
 viscera
+```
+
+### Example - Spelling Bee puzzle
+
+```bash
+$ lein with-profile dev run -- --size=7 --repeats --letters=mitncao
+commotion
+monomania
+maintain
+ammonia
+imitation
+monotonic
+ottoman
+anatomic
+animation
+cinnamon
+minicam
 ```
 
 ### Example - java standalone jar
@@ -73,7 +91,7 @@ lein uberjar
 Run with:
 
 ```bash
-java -cp target/uberjar/wordpuzzle-0.1.0-standalone.jar clojure.main -m wordpuzzle.main -h
+java -cp target/uberjar/wordpuzzle-0.2.0-standalone.jar clojure.main -m wordpuzzle.main -h
 ```
 
 ## Updating dependencies

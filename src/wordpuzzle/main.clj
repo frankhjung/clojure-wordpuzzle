@@ -11,12 +11,12 @@
         [""
          "NAME"
          ""
-         "  Solve word puzzles like those at nineletterword.tompaton.com"
+         "  Solve word puzzles like those at nineletterword.tompaton.com and NYT Spelling Bee"
          ""
          "SYNOPSIS"
          ""
          "  wordpuzzle.main [-h|--help]"
-         "  wordpuzzle.main [-d|--dictionary PATH] [-s|--size INT] <-l|--letters STRING>"
+         "  wordpuzzle.main [-d|--dictionary PATH] [-s|--size INT] <-l|--letters STRING> [-r|--repeats]"
          ""
          "DESCRIPTION"
          ""
@@ -39,14 +39,16 @@
     :default "resources/dictionary"
     :required "STRING"
     :validate [#(.exists (io/file %)) "Dictionary file not found"]]
-   ["-s" "--size INT" "Minimum word size of 4 to 9 letters"
+   ["-s" "--size INT" "Minimum word size"
     :required "INT"
     :default 4
     :parse-fn #(Integer/parseInt %)
     :validate [#(valid-size? %) "Must be greater than or equal to 4"]]
    ["-l" "--letters" "[REQUIRED] 7+ lowercase letters to make words"
     :required "STRING"
-    :validate [#(valid-letters? %) letters-required]]])
+    :validate [#(valid-letters? %) letters-required]]
+   ["-r" "--repeats" "Letters can be repeated (e.g., Spelling Bee)"
+    :default false]])
 
 ; Required options
 (def required-opts "Letters is required" #{:letters})
@@ -81,8 +83,8 @@
   (System/exit status))
 
 (defn solve "Solve word puzzle"
-  [letters size dictionary]
-  (let [words (get-words letters size dictionary)]
+  [letters size dictionary repeats]
+  (let [words (get-words letters size dictionary repeats)]
     (dorun (map println words))))
 
 (defn -main "Main - read options and solve word puzzle"
@@ -92,5 +94,5 @@
       ; exit with message
       (exit (if ok? 0 1) exit-message)
       ; else get and show words
-      (let [{:keys [letters size dictionary]} options]
-        (solve letters size dictionary)))))
+      (let [{:keys [letters size dictionary repeats]} options]
+        (solve letters size dictionary repeats)))))

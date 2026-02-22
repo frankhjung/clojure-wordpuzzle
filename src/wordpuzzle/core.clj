@@ -8,7 +8,14 @@
 (defn valid-letters? "Must be 7+ lowercase letters"
   [letters] (boolean (re-matches #"[a-z]{7,}" letters)))
 
-(defn valid-word?
+(defn spelling-bee?
+  "Return true when `word` can be constructed from the provided `letters`,
+   with letters able to be repeated."
+  [letters word]
+  (let [avail (set letters)]
+    (every? #(contains? avail %) word)))
+
+(defn nine-letters?
   "Return true when `word` can be constructed from the provided `letters`.
   The algorithm computes character frequencies so the result handles repeated
   characters correctly and avoids the explicit recursion used previously."
@@ -19,9 +26,10 @@
             (frequencies word))))
 
 (defn get-words "Get list of valid words from the dictionary"
-  [letters size dictionary]
+  [letters size dictionary repeats?]
   (with-open [reader (io/reader dictionary)]
-    (let [max-len (count letters)]
+    (let [max-len (if repeats? Integer/MAX_VALUE (count letters))
+          valid-word? (if repeats? spelling-bee? nine-letters?)]
       (->> (line-seq reader) ; read all words from dictionary
            (filter #(<= size (count %))) ; minimum size
            (filter #(<= (count %) max-len)) ; never longer than available letters

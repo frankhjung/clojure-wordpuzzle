@@ -29,7 +29,13 @@ test:
 	$(LEIN) eftest
 
 exec:
+	@echo 9-Letter word puzzle:
 	$(LEIN) run -- --size=7 --letters=cadevrsoi
+	@echo Spelling Bee puzzle:
+	$(LEIN) run -- --size=7 --repeats --letters=mitncao
+
+uberjar:
+	$(LEIN) uberjar
 
 #
 # Targets for CI/CD pipelines (GitHub/GitLab)
@@ -42,7 +48,7 @@ cicd-test:
 	$(LEIN_CICD) eftest
 
 #
-# Utility target to show the :profiles section of project.clj for debugging purposes.
+# Utility target to show supported lein profiles
 #
 show-profiles:
 	@echo "Project :profiles from project.clj:"
