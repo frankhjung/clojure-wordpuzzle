@@ -1,0 +1,38 @@
+name: Build, Test, and Run
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-test-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Clojure tooling
+        uses: DeLaGuardo/setup-clojure@13
+        with:
+          lein: 2.11.2
+
+      - name: Check
+        run: lein with-profile cicd check
+
+      - name: Build
+        run: lein with-profile cicd compile
+
+      - name: Test
+        run: lein with-profile cicd test
+
+      - name: Run default main with args
+        run: lein with-profile cicd run Foo Bar

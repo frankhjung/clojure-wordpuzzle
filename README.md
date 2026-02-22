@@ -23,6 +23,7 @@ lein build
 
 ```bash
 $ lein run -- --help
+
 NAME
 
   Solve word puzzles like those at nineletterword.tompaton.com
@@ -41,12 +42,12 @@ OPTIONS
 
   -h, --help                                     This help text
   -d, --dictionary STRING  resources/dictionary  Alternate word dictionary
-  -s, --size INT           4                     Minimum word size of 1 to 9 letters
-  -l, --letters STRING                           [REQUIRED] 9 lowercase letters to make words
+  -s, --size INT           4                     Minimum word size of 4 to 9 letters
+  -l, --letters STRING                           [REQUIRED] 7+ lowercase letters to make words
 
 LICENSE
 
-  Copyright © 2022 Frank H Jung, GPLv3.0
+  Copyright © 2022-2026 Frank H Jung, MIT License
 ```
 
 ### Example - lein run
@@ -74,6 +75,29 @@ Run with:
 ```bash
 java -cp target/uberjar/wordpuzzle-0.1.0-standalone.jar clojure.main -m wordpuzzle.main -h
 ```
+
+## Updating dependencies
+
+Dependencies for the project are defined in `project.clj`. After changing
+versions (or adding new libraries) simply fetch them with:
+
+```bash
+lein deps
+```
+
+The project already includes the `lein-ancient` plugin, which can inspect and
+upgrade out‑of‑date coordinates:
+
+```bash
+# show any dependencies that have newer releases available
+lein ancient
+
+# automatically update `project.clj` to use the latest versions
+lein ancient upgrade
+```
+
+Remember to run `lein deps` again after editing `project.clj` to pull down any
+new artifacts.
 
 ## LICENSE
 

@@ -1,0 +1,7 @@
+{
+  // Calva configuration to reduce automatic eval noise
+  "calva.auto-evaluate?": false,
+  "calva.show-error-on-eval": false,
+  "calva.show-eval-dialogs": false,
+  "calva.repl.output-in-repl-window": "never"
+}

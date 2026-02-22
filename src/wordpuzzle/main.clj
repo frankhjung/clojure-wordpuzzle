@@ -3,7 +3,7 @@
   (:require [clojure.tools.cli :refer [parse-opts]]
             [clojure.string :refer [join]]
             [clojure.java.io :as io]
-            [wordpuzzle.library :refer [valid-size? valid-letters? get-words]]))
+            [wordpuzzle.core :refer [valid-size? valid-letters? get-words]]))
 
 (defn usage "Wordpuzzle usage"
   [options-summary]
@@ -29,9 +29,9 @@
          ""
          "LICENSE"
          ""
-         "  Copyright © 2022 Frank H Jung, GPLv3.0"]))
+         "  Copyright © 2022-2026 Frank H Jung, MIT License"]))
 
-(def letters-required "Need 9 lowercase letters")
+(def letters-required "Need 7+ lowercase letters")
 
 (def cli-options "Process command line arguments"
   [["-h" "--help" "This help text"]
@@ -39,12 +39,12 @@
     :default "resources/dictionary"
     :required "STRING"
     :validate [#(.exists (io/file %)) "Dictionary file not found"]]
-   ["-s" "--size INT" "Minimum word size of 1 to 9 letters"
+   ["-s" "--size INT" "Minimum word size of 4 to 9 letters"
     :required "INT"
     :default 4
     :parse-fn #(Integer/parseInt %)
-    :validate [#(valid-size? %) "Must be a value from 1 to 9"]]
-   ["-l" "--letters" "[REQUIRED] 9 lowercase letters to make words"
+    :validate [#(valid-size? %) "Must be greater than or equal to 4"]]
+   ["-l" "--letters" "[REQUIRED] 7+ lowercase letters to make words"
     :required "STRING"
     :validate [#(valid-letters? %) letters-required]]])
 
@@ -57,7 +57,7 @@
 
 (defn error-msg "Show option validation errors "
   [errors]
-  (str (join \newline errors)))
+  (join \newline errors))
 
 (defn validate-opts "Check command line arguments"
   [args]
