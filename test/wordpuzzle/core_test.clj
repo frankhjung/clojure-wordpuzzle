@@ -6,16 +6,16 @@
                                      nine-letters?
                                      spelling-bee?]]))
 
-((deftest test-valid-letters
-   (testing "letters valid (≥7 chars)"
-     (is (valid-letters? "abcdefghi"))
-     (is (valid-letters? "abcdefg")))
-   (testing "letters too short"
-     (is (not (valid-letters? "abcdef"))))
-   (testing "letters contain numbers"
-     (is (not (valid-letters? "abcd3fghi"))))
-   (testing "letters contain capital letters"
-     (is (not (valid-letters? "abcdEfghi"))))))
+(deftest test-valid-letters
+  (testing "letters valid (≥7 chars)"
+    (is (valid-letters? "abcdefghi"))
+    (is (valid-letters? "abcdefg")))
+  (testing "letters too short"
+    (is (not (valid-letters? "abcdef"))))
+  (testing "letters contain numbers"
+    (is (not (valid-letters? "abcd3fghi"))))
+  (testing "letters contain capital letters"
+    (is (not (valid-letters? "abcdEfghi")))))
 
 (deftest test-valid-size
   (testing "size 4 in range"
@@ -38,6 +38,8 @@
 (deftest test-spelling-bee
   (testing "word contains valid letters with repeats"
     (is (spelling-bee? "foobar" "foobarrr")))
+  (testing "word can reuse a letter that appears once in letters"
+    (is (spelling-bee? "bar" "barrrr")))
   (testing "invalid word because of invalid letter"
     (is (not (spelling-bee? "foobar" "bartez")))))
 
