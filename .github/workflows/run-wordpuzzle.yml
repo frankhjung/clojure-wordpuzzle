@@ -24,6 +24,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -35,14 +40,14 @@ jobs:
           # Get the latest release download URL from GitHub API
           DOWNLOAD_URL=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | \
             grep 'browser_download_url' | grep 'standalone.jar' | cut -d '"' -f 4)
-
+          # Check if we got a URL
           if [ -z "$DOWNLOAD_URL" ]; then
             echo "Error: Could not find uberjar in latest release"
             echo "Latest release info:"
             curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | grep -E 'tag_name|browser_download_url'
             exit 1
           fi
-
+          # Download the uberjar
           echo "Downloading from: $DOWNLOAD_URL"
           curl -L --fail -o wordpuzzle-standalone.jar "$DOWNLOAD_URL"
 
@@ -50,7 +55,7 @@ jobs:
             echo "Error: Failed to download jar file"
             exit 1
           fi
-
+          # List the downloaded file for verification
           echo "Downloaded jar file:"
           ls -lh wordpuzzle-standalone.jar
 
