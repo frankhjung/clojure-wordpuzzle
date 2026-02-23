@@ -29,20 +29,13 @@
   [letters size dictionary repeats?]
   (with-open [reader (io/reader dictionary)]
     (let [max-len (if repeats? Integer/MAX_VALUE (count letters))
-          avail (if repeats? (set letters) (frequencies letters))
+          mandatory-letter (str (first letters))
           valid-word? (if repeats?
-                        ;; with repeats allowed we only need to check that each
-                        ;; character in the word appears in the set of letters.
-                        (fn [word] (every? #(contains? avail %) word))
-                        ;; otherwise compare frequencies the same way as
-                        ;; `nine-letters?` does above, but captured in a
-                        ;; closure over `avail`.
-                        (fn [word] (every? (fn [[ch cnt]]
-                                             (<= cnt (get avail ch 0)))
-                                           (frequencies word))))]
+                        #(spelling-bee? letters %)
+                        #(nine-letters? letters %))]
       (->> (line-seq reader) ; read all words from dictionary
            (filter #(<= size (count %))) ; minimum size
            (filter #(<= (count %) max-len)) ; never longer than available letters
-           (filter #(includes? % (str (first letters)))) ; has mandatory letter
-           (filter valid-word?) ; is a valid word (arity fixed)
+           (filter #(includes? % mandatory-letter)) ; has mandatory letter
+           (filter valid-word?) ; is a valid word
            (set)))))

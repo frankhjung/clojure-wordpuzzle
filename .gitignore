@@ -7,7 +7,6 @@
 .nrepl-port
 .nrepl-port/
 *.class
-*.code-workspace
 *.jar
 checkouts/
 classes/
