@@ -50,7 +50,7 @@ jobs:
           # Download the uberjar
           echo "Downloading from: $DOWNLOAD_URL"
           curl -L --fail -o wordpuzzle-standalone.jar "$DOWNLOAD_URL"
-
+          # Check if we got a file
           if [ ! -f wordpuzzle-standalone.jar ]; then
             echo "Error: Failed to download jar file"
             exit 1
@@ -58,6 +58,8 @@ jobs:
           # List the downloaded file for verification
           echo "Downloaded jar file:"
           ls -lh wordpuzzle-standalone.jar
+          # Save jar location for next step
+          echo "JAR_PATH=$(pwd)/wordpuzzle-standalone.jar" >> $GITHUB_ENV
 
       - name: Run main with size ${{ inputs.SIZE }} and letters ${{ inputs.LETTERS }}
         env:
@@ -65,6 +67,12 @@ jobs:
           LETTERS: ${{ inputs.LETTERS }}
           REPEATS: ${{ inputs.REPEATS }}
         run: |
+          # Verify jar exists
+          if [ ! -f "${{ env.JAR_PATH }}" ]; then
+            echo "Error: JAR file not found at ${{ env.JAR_PATH }}"
+            ls -la
+            exit 1
+          fi
           # extract leading integer component from SIZE
           SIZE_INT="${SIZE%%[^0-9]*}"
           # normalize letters to lowercase
@@ -72,5 +80,5 @@ jobs:
           # conditionally set repeats flag
           REPEATS_FLAG="$([ "$REPEATS" = "true" ] && echo "--repeats")"
           # call the jar with the appropriate arguments
-          echo "Running: java -jar wordpuzzle-standalone.jar --size=\"$SIZE_INT\" --letters=\"$LETTERS_LOWER\" $REPEATS_FLAG"
-          java -jar wordpuzzle-standalone.jar --size="$SIZE_INT" --letters="$LETTERS_LOWER" $REPEATS_FLAG 2>&1 || (echo "Exit code: $?" && exit 1)
+          echo "Running: java -jar ${{ env.JAR_PATH }} --size=\"$SIZE_INT\" --letters=\"$LETTERS_LOWER\" $REPEATS_FLAG"
+          java -jar "${{ env.JAR_PATH }}" --size="$SIZE_INT" --letters="$LETTERS_LOWER" $REPEATS_FLAG
