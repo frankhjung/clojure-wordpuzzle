@@ -3,18 +3,19 @@
             [wordpuzzle.core :refer [get-words
                                      valid-letters?
                                      valid-size?
-                                     valid-word?]]))
+                                     nine-letters?
+                                     spelling-bee?]]))
 
-((deftest test-valid-letters
-   (testing "letters valid (≥7 chars)"
-     (is (valid-letters? "abcdefghi"))
-     (is (valid-letters? "abcdefg")))
-   (testing "letters too short"
-     (is (not (valid-letters? "abcdef"))))
-   (testing "letters contain numbers"
-     (is (not (valid-letters? "abcd3fghi"))))
-   (testing "letters contain capital letters"
-     (is (not (valid-letters? "abcdEfghi"))))))
+(deftest test-valid-letters
+  (testing "letters valid (≥7 chars)"
+    (is (valid-letters? "abcdefghi"))
+    (is (valid-letters? "abcdefg")))
+  (testing "letters too short"
+    (is (not (valid-letters? "abcdef"))))
+  (testing "letters contain numbers"
+    (is (not (valid-letters? "abcd3fghi"))))
+  (testing "letters contain capital letters"
+    (is (not (valid-letters? "abcdEfghi")))))
 
 (deftest test-valid-size
   (testing "size 4 in range"
@@ -24,22 +25,37 @@
   (testing "size too low"
     (is (every? false? (map #(valid-size? %) (range -1 4))))))
 
-(deftest test-valid-word
+(deftest test-nine-letters
   (testing "word contains valid letters"
-    (is (valid-word? "foobar" "barfoo")))
+    (is (nine-letters? "foobar" "barfoo")))
   (testing "word contains valid subset"
-    (is (valid-word? "foobar" "for")))
+    (is (nine-letters? "foobar" "for")))
   (testing "invalid word"
-    (is (not (valid-word? "foobar" "bartez"))))
+    (is (not (nine-letters? "foobar" "bartez"))))
   (testing "invalid letter frequency"
-    (is (not (valid-word? "foobar" "baafor")))))
+    (is (not (nine-letters? "foobar" "baafor")))))
+
+(deftest test-spelling-bee
+  (testing "word contains valid letters with repeats"
+    (is (spelling-bee? "foobar" "foobarrr")))
+  (testing "word can reuse a letter that appears once in letters"
+    (is (spelling-bee? "bar" "barrrr")))
+  (testing "invalid word because of invalid letter"
+    (is (not (spelling-bee? "foobar" "bartez")))))
 
 (deftest test-get-words
-  (testing "returns expected words"
+  (testing "returns expected words without repeats"
     (let [expected #{"varicose" "sidecar" "divorce" "discover" "divorces" "viscera"}
-          actual (get-words "cadevrsoi" 7 "resources/dictionary")]
+          actual (get-words "cadevrsoi" 7 "resources/dictionary" false)]
       (is (= expected actual))))
-  (testing "words longer than letters are ignored"
+  (testing "returns expected words with repeats"
+    (let [letters "barfo"
+          results (get-words letters 4 "resources/dictionary" true)]
+      ;; Check structural and spelling-bee properties without depending on non-empty results.
+      (is (set? results))
+      (is (every? #(spelling-bee? letters %) results))
+      (is (every? #(>= (count %) 4) results))))
+  (testing "words longer than letters are ignored if repeats=false"
     (let [letters "abcd"
-          results (get-words letters 1 "resources/dictionary")]
+          results (get-words letters 4 "resources/dictionary" false)]
       (is (every? #(<= (count %) (count letters)) results)))))
