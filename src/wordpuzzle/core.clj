@@ -38,4 +38,4 @@
            (filter #(<= (count %) max-len)) ; never longer than available letters
            (filter #(includes? % mandatory-letter)) ; has mandatory letter
            (filter valid-word?) ; is a valid word
-           (set)))))
+           (vec)))))

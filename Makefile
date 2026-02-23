@@ -5,14 +5,14 @@
 LEIN = lein with-profile dev
 LEIN_CICD = lein with-profile cicd
 
+.PHONY: default
+default: clean fmt check compile test
+
 # basic help listing
 .PHONY: help
 help:
 	@echo "Available make targets:"
 	@grep -E '^[a-zA-Z_-]+:' Makefile | sed 's/:.*$$//' | sort | uniq | xargs -n1 printf "  %s\n"
-
-.PHONY: default
-default: clean fmt check compile test
 
 #
 # Local development targets
@@ -35,6 +35,7 @@ compile:
 	$(LEIN) compile
 
 .PHONY: test
+test:
 	$(LEIN) eftest
 
 .PHONY: exec
@@ -74,7 +75,7 @@ dictionary:
 ifeq (,$(wildcard /usr/share/dict/british-english-huge))
 	@echo using dictionary from https://raw.githubusercontent.com/dwyl/english-words/master/words.txt
 	@curl -s https://raw.githubusercontent.com/dwyl/english-words/master/words.txt \
-		> resources/dictionary
+		| sort -u > resources/dictionary
 else
 	@echo using dictionary from /usr/share/dict/british-english-huge
 	@cp /usr/share/dict/british-english-huge resources/dictionary
