@@ -1,0 +1,42 @@
+---
+name: Run Wordpuzzle
+
+on:
+  workflow_dispatch:
+    inputs:
+      SIZE:
+        description: "Minimum word size"
+        required: false
+        default: 4
+        type: number
+      LETTERS:
+        description: "Letters to use"
+        required: true
+        type: string
+
+jobs:
+  run-wordpuzzle:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Clojure tooling
+        uses: DeLaGuardo/setup-clojure@13.5
+        with:
+          lein: 2.11.2
+
+      - name: Run main with size ${{ inputs.SIZE }} and letters ${{ inputs.LETTERS }}
+        env:
+          SIZE: ${{ inputs.SIZE }}
+          LETTERS: ${{ inputs.LETTERS }}
+        run: lein with-profile cicd run -- --size="$SIZE" --letters="$LETTERS"
