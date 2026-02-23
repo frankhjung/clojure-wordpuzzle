@@ -37,5 +37,15 @@ jobs:
       - name: Test
         run: lein with-profile cicd test
 
+      - name: Build uberjar
+        run: lein with-profile cicd uberjar
+
+      - name: Upload uberjar artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wordpuzzle-uberjar
+          path: target/uberjar/wordpuzzle-*-standalone.jar
+          retention-days: 5
+
       - name: Run main with args
         run: lein with-profile cicd run -- --size=7 --letters=cadevrsoi

@@ -4,6 +4,11 @@ name: Run Wordpuzzle
 on:
   workflow_dispatch:
     inputs:
+      VERSION:
+        description: "Uberjar version"
+        required: false
+        default: "0.2.0"
+        type: string
       SIZE:
         description: "Minimum word size"
         required: false
@@ -24,24 +29,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "21"
 
-      - name: Set up Clojure tooling
-        uses: DeLaGuardo/setup-clojure@13.5
+      - name: Download wordpuzzle uberjar
+        uses: actions/download-artifact@v4
         with:
-          lein: 2.11.2
+          name: wordpuzzle-uberjar
 
       - name: Run main with size ${{ inputs.SIZE }} and letters ${{ inputs.LETTERS }}
         env:
+          VERSION: ${{ inputs.VERSION }}
           SIZE: ${{ inputs.SIZE }}
           LETTERS: ${{ inputs.LETTERS }}
           REPEATS: ${{ inputs.REPEATS }}
@@ -50,5 +51,7 @@ jobs:
           SIZE_INT="${SIZE%%[^0-9]*}"
           # normalize letters to lowercase
           LETTERS_LOWER="${LETTERS,,}"
+          # conditionally set repeats flag
           REPEATS_FLAG="$([ "$REPEATS" = "true" ] && echo "--repeats")"
-          lein with-profile cicd run -- --size="$SIZE_INT" --letters="$LETTERS_LOWER" $REPEATS_FLAG
+          # call the jar with the appropriate arguments
+          java -jar wordpuzzle-${VERSION}-standalone.jar --size="$SIZE_INT" --letters="$LETTERS_LOWER" $REPEATS_FLAG
