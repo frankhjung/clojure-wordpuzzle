@@ -67,11 +67,21 @@ jobs:
           LETTERS: ${{ inputs.LETTERS }}
           REPEATS: ${{ inputs.REPEATS }}
         run: |
+          # Debug: show current directory and files
+          echo "Current directory: $(pwd)"
+          echo "JAR_PATH: ${{ env.JAR_PATH }}"
+          echo "Files in current directory:"
+          ls -la
           # Verify jar exists
           if [ ! -f "${{ env.JAR_PATH }}" ]; then
             echo "Error: JAR file not found at ${{ env.JAR_PATH }}"
-            ls -la
             exit 1
+          fi
+          # Check if resources/dictionary exists
+          if [ ! -f resources/dictionary ]; then
+            echo "Warning: resources/dictionary not found"
+            echo "Contents of resources/ directory:"
+            ls -la resources/ || echo "resources/ directory does not exist"
           fi
           # extract leading integer component from SIZE
           SIZE_INT="${SIZE%%[^0-9]*}"
