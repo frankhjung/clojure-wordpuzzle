@@ -72,4 +72,5 @@ jobs:
           # conditionally set repeats flag
           REPEATS_FLAG="$([ "$REPEATS" = "true" ] && echo "--repeats")"
           # call the jar with the appropriate arguments
-          java -jar wordpuzzle-standalone.jar --size="$SIZE_INT" --letters="$LETTERS_LOWER" $REPEATS_FLAG
+          echo "Running: java -jar wordpuzzle-standalone.jar --size=\"$SIZE_INT\" --letters=\"$LETTERS_LOWER\" $REPEATS_FLAG"
+          java -jar wordpuzzle-standalone.jar --size="$SIZE_INT" --letters="$LETTERS_LOWER" $REPEATS_FLAG 2>&1 || (echo "Exit code: $?" && exit 1)
