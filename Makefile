@@ -5,7 +5,7 @@
 LEIN = lein with-profile dev
 LEIN_CICD = lein with-profile cicd
 
-.PHONY: default clean fmt check compile test cicd-test cicd-clean show-profiles
+.PHONY: default clean fmt check compile test cicd-test cicd-clean show-profiles uberjar
 
 default: clean fmt check compile test
 

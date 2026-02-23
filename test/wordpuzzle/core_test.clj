@@ -51,9 +51,11 @@
   (testing "returns expected words with repeats"
     (let [letters "barfo"
           results (get-words letters 4 "resources/dictionary" true)]
-      ;; It might produce words like "foobars" if 's' was valid, but this just checks it runs.
-      (is (sequential? (seq results)))))
+      ;; Check structural and spelling-bee properties without depending on non-empty results.
+      (is (set? results))
+      (is (every? #(spelling-bee? letters %) results))
+      (is (every? #(>= (count %) 4) results))))
   (testing "words longer than letters are ignored if repeats=false"
     (let [letters "abcd"
-          results (get-words letters 1 "resources/dictionary" false)]
+          results (get-words letters 4 "resources/dictionary" false)]
       (is (every? #(<= (count %) (count letters)) results)))))

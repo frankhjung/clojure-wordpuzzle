@@ -44,7 +44,7 @@
     :default 4
     :parse-fn #(Integer/parseInt %)
     :validate [#(valid-size? %) "Must be greater than or equal to 4"]]
-   ["-l" "--letters" "[REQUIRED] 7+ lowercase letters to make words"
+   ["-l" "--letters STRING" "[REQUIRED] 7+ lowercase letters to make words"
     :required "STRING"
     :validate [#(valid-letters? %) letters-required]]
    ["-r" "--repeats" "Letters can be repeated (e.g., Spelling Bee)"
