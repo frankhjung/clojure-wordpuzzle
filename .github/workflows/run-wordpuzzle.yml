@@ -38,11 +38,21 @@ jobs:
 
           if [ -z "$DOWNLOAD_URL" ]; then
             echo "Error: Could not find uberjar in latest release"
+            echo "Latest release info:"
+            curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | grep -E 'tag_name|browser_download_url'
             exit 1
           fi
 
           echo "Downloading from: $DOWNLOAD_URL"
-          curl -L -o wordpuzzle-standalone.jar "$DOWNLOAD_URL"
+          curl -L --fail -o wordpuzzle-standalone.jar "$DOWNLOAD_URL"
+
+          if [ ! -f wordpuzzle-standalone.jar ]; then
+            echo "Error: Failed to download jar file"
+            exit 1
+          fi
+
+          echo "Downloaded jar file:"
+          ls -lh wordpuzzle-standalone.jar
 
       - name: Run main with size ${{ inputs.SIZE }} and letters ${{ inputs.LETTERS }}
         env:
