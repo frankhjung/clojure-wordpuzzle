@@ -39,4 +39,9 @@ jobs:
         env:
           SIZE: ${{ inputs.SIZE }}
           LETTERS: ${{ inputs.LETTERS }}
-        run: lein with-profile cicd run -- --size="$SIZE" --letters="$LETTERS"
+        run: |
+          # extract leading integer component from SIZE
+          SIZE_INT="${SIZE%%[^0-9]*}"
+          # normalize letters to lowercase
+          LETTERS_LOWER="${LETTERS,,}"
+          lein with-profile cicd run -- --size="$SIZE_INT" --letters="$LETTERS_LOWER"
