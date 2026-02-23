@@ -4,11 +4,6 @@ name: Run Wordpuzzle
 on:
   workflow_dispatch:
     inputs:
-      VERSION:
-        description: "Uberjar version"
-        required: false
-        default: "0.2.0"
-        type: string
       SIZE:
         description: "Minimum word size"
         required: false
@@ -35,14 +30,22 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - name: Download wordpuzzle uberjar
-        uses: actions/download-artifact@v4
-        with:
-          name: wordpuzzle-uberjar
+      - name: Download wordpuzzle uberjar from latest release
+        run: |
+          # Get the latest release download URL from GitHub API
+          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | \
+            grep 'browser_download_url' | grep 'standalone.jar' | cut -d '"' -f 4)
+
+          if [ -z "$DOWNLOAD_URL" ]; then
+            echo "Error: Could not find uberjar in latest release"
+            exit 1
+          fi
+
+          echo "Downloading from: $DOWNLOAD_URL"
+          curl -L -o wordpuzzle-standalone.jar "$DOWNLOAD_URL"
 
       - name: Run main with size ${{ inputs.SIZE }} and letters ${{ inputs.LETTERS }}
         env:
-          VERSION: ${{ inputs.VERSION }}
           SIZE: ${{ inputs.SIZE }}
           LETTERS: ${{ inputs.LETTERS }}
           REPEATS: ${{ inputs.REPEATS }}
@@ -54,4 +57,4 @@ jobs:
           # conditionally set repeats flag
           REPEATS_FLAG="$([ "$REPEATS" = "true" ] && echo "--repeats")"
           # call the jar with the appropriate arguments
-          java -jar wordpuzzle-${VERSION}-standalone.jar --size="$SIZE_INT" --letters="$LETTERS_LOWER" $REPEATS_FLAG
+          java -jar wordpuzzle-standalone.jar --size="$SIZE_INT" --letters="$LETTERS_LOWER" $REPEATS_FLAG
