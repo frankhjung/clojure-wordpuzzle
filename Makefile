@@ -5,35 +5,40 @@
 LEIN = lein with-profile dev
 LEIN_CICD = lein with-profile cicd
 
-.PHONY: default clean fmt check compile test cicd-test cicd-clean show-profiles uberjar
-
+.PHONY: default
 default: clean fmt check compile test
 
 #
 # Local development targets
 #
 
+.PHONY: clean
 clean:
 	$(LEIN) clean
 
+.PHONY: fmt
 fmt:
 	$(LEIN) cljfmt fix
 
+.PHONY: check
 check:
 	$(LEIN) cljfmt check
 
+.PHONY: compile
 compile:
 	$(LEIN) compile
 
-test:
+.PHONY: test
 	$(LEIN) eftest
 
+.PHONY: exec
 exec:
 	@echo 9-Letter word puzzle:
 	$(LEIN) run -- --size=7 --letters=cadevrsoi
 	@echo Spelling Bee puzzle:
 	$(LEIN) run -- --size=7 --repeats --letters=mitncao
 
+.PHONY: uberjar
 uberjar:
 	$(LEIN) uberjar
 
@@ -41,15 +46,29 @@ uberjar:
 # Targets for CI/CD pipelines (GitHub/GitLab)
 #
 
+.PHONY: cicd-clean
 cicd-clean:
 	$(LEIN_CICD) clean
 
+
+.PHONY: cicd-test
 cicd-test:
 	$(LEIN_CICD) eftest
 
 #
 # Utility target to show supported lein profiles
 #
+.PHONY: show-profiles
 show-profiles:
 	@echo "Project :profiles from project.clj:"
 	@grep -n ":profiles" -A20 project.clj | sed 's/^/    /'
+
+.PHONY: dictionary
+dictionary:
+ifeq (,$(wildcard /usr/share/dict/british-english-huge))
+	@echo using dictionary from https://raw.githubusercontent.com/dwyl/english-words/master/words.txt
+	@curl https://raw.githubusercontent.com/dwyl/english-words/master/words.txt -o dictionary
+else
+	@echo using dictionary from /usr/share/dict/british-english-huge
+	@ln -sf /usr/share/dict/british-english-huge dictionary
+endif
