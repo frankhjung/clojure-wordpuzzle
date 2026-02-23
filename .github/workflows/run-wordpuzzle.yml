@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out main
+      - name: Check out repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
@@ -31,9 +31,12 @@ jobs:
           java-version: "21"
 
       - name: Set up Clojure tooling
-        uses: DeLaGuardo/setup-clojure@13
+        uses: DeLaGuardo/setup-clojure@13.5
         with:
           lein: 2.11.2
 
       - name: Run main with size ${{ inputs.SIZE }} and letters ${{ inputs.LETTERS }}
-        run: lein with-profile cicd run -- --size=${{ inputs.SIZE }} --letters=${{ inputs.LETTERS }}
+        env:
+          SIZE: ${{ inputs.SIZE }}
+          LETTERS: ${{ inputs.LETTERS }}
+        run: lein with-profile cicd run -- --size="$SIZE" --letters="$LETTERS"
