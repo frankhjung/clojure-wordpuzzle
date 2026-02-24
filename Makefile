@@ -4,15 +4,16 @@
 
 LEIN = lein with-profile dev
 LEIN_CICD = lein with-profile cicd
+LEIN_UBERJAR = lein with-profile cicd,uberjar
+
+.PHONY: default
+default: clean fmt check compile test
 
 # basic help listing
 .PHONY: help
 help:
 	@echo "Available make targets:"
 	@grep -E '^[a-zA-Z_-]+:' Makefile | sed 's/:.*$$//' | sort | uniq | xargs -n1 printf "  %s\n"
-
-.PHONY: default
-default: clean fmt check compile test
 
 #
 # Local development targets
@@ -35,10 +36,11 @@ compile:
 	$(LEIN) compile
 
 .PHONY: test
+test:
 	$(LEIN) eftest
 
-.PHONY: exec
-exec:
+.PHONY: run
+run:
 	@echo 9-Letter word puzzle:
 	$(LEIN) run -- --size=7 --letters=cadevrsoi
 	@echo Spelling Bee puzzle:
@@ -46,7 +48,11 @@ exec:
 
 .PHONY: uberjar
 uberjar:
-	$(LEIN) uberjar
+	$(LEIN_UBERJAR) uberjar
+
+.PHONY: run-uberjar
+run-uberjar: uberjar
+	java -jar target/uberjar/wordpuzzle-*-standalone.jar --size=7 --letters=cadevrsoi
 
 #
 # Targets for CI/CD pipelines (GitHub/GitLab)
@@ -74,7 +80,7 @@ dictionary:
 ifeq (,$(wildcard /usr/share/dict/british-english-huge))
 	@echo using dictionary from https://raw.githubusercontent.com/dwyl/english-words/master/words.txt
 	@curl -s https://raw.githubusercontent.com/dwyl/english-words/master/words.txt \
-		> resources/dictionary
+		| LC_ALL=C sort -u > resources/dictionary
 else
 	@echo using dictionary from /usr/share/dict/british-english-huge
 	@cp /usr/share/dict/british-english-huge resources/dictionary

@@ -10,6 +10,5 @@
 *.jar
 checkouts/
 classes/
-dictionary
 profiles.clj
 target/

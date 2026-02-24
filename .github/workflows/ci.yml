@@ -4,12 +4,16 @@ name: Build, Test, and Run
 on:
   push:
     branches:
-      - main
+      - "**"
+    tags:
+      - "v*"
   pull_request:
 
 jobs:
   build-test-run:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Check out repository
@@ -36,6 +40,21 @@ jobs:
 
       - name: Test
         run: lein with-profile cicd test
+
+      - name: Build uberjar
+        if: startsWith(github.ref, 'refs/tags/')
+        run: lein with-profile cicd,uberjar uberjar
+
+      - name: Create/Update Release with uberjar
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: target/uberjar/wordpuzzle-*-standalone.jar
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run main with args
         run: lein with-profile cicd run -- --size=7 --letters=cadevrsoi

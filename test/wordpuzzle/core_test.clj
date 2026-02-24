@@ -43,18 +43,58 @@
   (testing "invalid word because of invalid letter"
     (is (not (spelling-bee? "foobar" "bartez")))))
 
+(def words7norepeats (set ["advices"
+                           "ascrive"
+                           "caserio"
+                           "cervoid"
+                           "codeias"
+                           "codrive"
+                           "codrives"
+                           "coraise"
+                           "cordies"
+                           "croisad"
+                           "croisade"
+                           "discover"
+                           "divorce"
+                           "divorces"
+                           "idocrase"
+                           "radices"
+                           "radicose"
+                           "sarcode"
+                           "sarcoid"
+                           "scaroid"
+                           "scarved"
+                           "scoriae"
+                           "scrived"
+                           "sedovic"
+                           "sidecar"
+                           "varices"
+                           "varicose"
+                           "varicosed"
+                           "viscera"
+                           "voicers"]))
+
+(def words9repeats (set ["acarocecidia"
+                         "acrocoracoid"
+                         "ascaridiasis"
+                         "cervicicardiac"
+                         "codiscoverer"
+                         "codiscoverers"
+                         "crisscrossed"
+                         "crisscrosses"
+                         "rediscovered"
+                         "rediscoverer"
+                         "rediscoveries"]))
+
 (deftest test-get-words
   (testing "returns expected words without repeats"
-    (let [expected #{"varicose" "sidecar" "divorce" "discover" "divorces" "viscera"}
+    (let [expected words7norepeats
           actual (get-words "cadevrsoi" 7 "resources/dictionary" false)]
       (is (= expected actual))))
   (testing "returns expected words with repeats"
-    (let [letters "barfo"
-          results (get-words letters 4 "resources/dictionary" true)]
-      ;; Check structural and spelling-bee properties without depending on non-empty results.
-      (is (set? results))
-      (is (every? #(spelling-bee? letters %) results))
-      (is (every? #(>= (count %) 4) results))))
+    (let [expected words9repeats
+          actual (get-words "cadevrsoi" 12 "resources/dictionary" true)]
+      (is (= expected actual))))
   (testing "words longer than letters are ignored if repeats=false"
     (let [letters "abcd"
           results (get-words letters 4 "resources/dictionary" false)]

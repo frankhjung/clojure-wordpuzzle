@@ -35,10 +35,19 @@ jobs:
           distribution: temurin
           java-version: "21"
 
-      - name: Set up Clojure tooling
-        uses: DeLaGuardo/setup-clojure@13.5
-        with:
-          lein: 2.11.2
+      - name: Download wordpuzzle uberjar from latest release
+        run: |
+          # Get the latest release download URL from GitHub API
+          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | \
+            grep 'browser_download_url' | grep 'standalone.jar' | cut -d '"' -f 4)
+          # Check if we got a valid URL
+          if [ -z "$DOWNLOAD_URL" ]; then
+            echo "Error: Could not find uberjar in latest release"
+            exit 1
+          fi
+          # Download the uberjar
+          curl -L --fail -o wordpuzzle-standalone.jar "$DOWNLOAD_URL"
+          echo "JAR_PATH=$(pwd)/wordpuzzle-standalone.jar" >> $GITHUB_ENV
 
       - name: Run main with size ${{ inputs.SIZE }} and letters ${{ inputs.LETTERS }}
         env:
@@ -46,9 +55,13 @@ jobs:
           LETTERS: ${{ inputs.LETTERS }}
           REPEATS: ${{ inputs.REPEATS }}
         run: |
-          # extract leading integer component from SIZE
+          # Extract leading integer component from SIZE
           SIZE_INT="${SIZE%%[^0-9]*}"
-          # normalize letters to lowercase
+          # Normalize letters to lowercase
           LETTERS_LOWER="${LETTERS,,}"
-          REPEATS_FLAG="$([ "$REPEATS" = "true" ] && echo "--repeats")"
-          lein with-profile cicd run -- --size="$SIZE_INT" --letters="$LETTERS_LOWER" $REPEATS_FLAG
+          # Build argument array
+          ARGS=("--size=$SIZE_INT" "--letters=$LETTERS_LOWER")
+          # Add repeats flag if true
+          [[ "$REPEATS" = "true" ]] && ARGS+=(--repeats)
+          # Run the jar with the appropriate arguments
+          java -jar "${{ env.JAR_PATH }}" "${ARGS[@]}"
