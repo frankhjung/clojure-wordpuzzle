@@ -11,6 +11,7 @@
   :target-path "target/%s"
   :profiles {:dev {:aliases {"build" ["do" "check," "eftest," "run"]}
                    :plugins [[lein-cljfmt "0.6.8"]]}
-             :cicd {:local-repo ".m2/repository"}}
+             :cicd {:local-repo ".m2/repository"}
+             :uberjar {:aot :all}}
   :clean-targets [:target-path]
   :aliases {"build" ["do" "check," "eftest," "run"]})

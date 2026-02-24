@@ -1,7 +1,8 @@
 # Clojure Solution to Word Puzzles
 
 Explore Clojure to solve [9 Letter word
-Puzzle](https://nineletterword.tompaton.com/adevcrsoi/) and [NYT Spelling Bee](https://www.nytimes.com/puzzles/spelling-bee) puzzles.
+Puzzle](https://nineletterword.tompaton.com/adevcrsoi/) and
+[NYT Spelling Bee](https://www.nytimes.com/puzzles/spelling-bee) puzzles.
 
 See also the other language solutions:
 
@@ -13,10 +14,22 @@ See also the other language solutions:
 
 ## Build
 
-To build this project using [Leiningen](https://leiningen.org/)
+This project provides convenient `Makefile` targets that wrap common Leiningen
+tasks. Use `make` for local development; the `cicd` prefixed targets are
+provided for pipeline usage.
+
+Common targets:
+
+- `make` - default: `clean fmt check compile test`
+- `make compile` - compile sources
+- `make test` - run tests
+- `make run` - run example puzzles using the dev profile
+- `make uberjar` - build a standalone (über) JAR
+
+You can still run Leiningen directly if you prefer:
 
 ```bash
-lein build
+lein with-profile dev test
 ```
 
 ## Run
@@ -51,19 +64,21 @@ LICENSE
   Copyright © 2022-2026 Frank H Jung, MIT License
 ```
 
-### Example - 9 letter puzzle
+### Run puzzle solver
+
+Use the `make run` target (runs the project under the `dev` profile):
 
 ```bash
-$ lein with-profile dev run -- --size=7 --letters=cadevrsoi
-varicose
-sidecar
-divorce
-discover
-divorces
-viscera
+make run
 ```
 
-### Example - Spelling Bee puzzle
+Or run directly with Leiningen:
+
+```bash
+lein with-profile dev run -- --size=7 --letters=cadevrsoi
+```
+
+### Run Spelling Bee puzzle
 
 ```bash
 $ lein with-profile dev run -- --size=7 --repeats --letters=mitncao
@@ -80,19 +95,36 @@ cinnamon
 minicam
 ```
 
-### Example - java standalone jar
+### Run standalone jar
 
-Build a standalone (Über) JAR:
-
-```bash
-lein uberjar
-```
-
-Run with:
+Build a standalone (Über) JAR with the Makefile target or Leiningen:
 
 ```bash
-java -cp target/uberjar/wordpuzzle-0.2.0-standalone.jar clojure.main -m wordpuzzle.main -h
+make uberjar
+# or for CI-style profile combination
+lein with-profile cicd,uberjar uberjar
 ```
+
+Run the standalone jar (build first using `make uberjar` or via CI):
+
+```bash
+make run-uberjar
+```
+
+Or manually with Java (use the version tag that matches the GitHub release):
+
+```bash
+java -jar target/uberjar/wordpuzzle-*-standalone.jar --size=7 --letters=cadevrsoi
+```
+
+## Releases
+
+The project’s CI pipeline builds and publishes an uberjar on every git tag
+matching `v*` by creating a GitHub release. To install a released version,
+simply download the asset from the
+[releases page](https://github.com/frankhjung/clojure-wordpuzzle/releases) or
+use the `run-wordpuzzle.yml` workflow which automatically fetches the latest
+jar.
 
 ## Updating dependencies
 
