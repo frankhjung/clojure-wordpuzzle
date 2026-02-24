@@ -24,30 +24,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "21"
 
-      - name: Download wordpuzzle uberjar from latest release
-        run: |
-          # Get the latest release download URL from GitHub API
-          DOWNLOAD_URL=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | \
-            grep 'browser_download_url' | grep 'standalone.jar' | cut -d '"' -f 4)
-          # Check if we got a valid URL
-          if [ -z "$DOWNLOAD_URL" ]; then
-            echo "Error: Could not find uberjar in latest release"
-            exit 1
-          fi
-          # Download the uberjar
-          curl -L --fail -o wordpuzzle-standalone.jar "$DOWNLOAD_URL"
-          echo "JAR_PATH=$(pwd)/wordpuzzle-standalone.jar" >> $GITHUB_ENV
+      - name: Download wordpuzzle uberjar and dictionary from latest release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download --pattern "wordpuzzle-*-standalone.jar" --pattern "dictionary"
 
       - name: Run main with size ${{ inputs.SIZE }} and letters ${{ inputs.LETTERS }}
         env:
@@ -60,8 +46,8 @@ jobs:
           # Normalize letters to lowercase
           LETTERS_LOWER="${LETTERS,,}"
           # Build argument array
-          ARGS=("--size=$SIZE_INT" "--letters=$LETTERS_LOWER")
+          ARGS=("--size=$SIZE_INT" "--letters=$LETTERS_LOWER" "--dictionary=dictionary")
           # Add repeats flag if true
           [[ "$REPEATS" = "true" ]] && ARGS+=(--repeats)
           # Run the jar with the appropriate arguments
-          java -jar "${{ env.JAR_PATH }}" "${ARGS[@]}"
+          java -jar wordpuzzle-*-standalone.jar "${ARGS[@]}"
