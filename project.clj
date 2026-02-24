@@ -7,7 +7,7 @@
                  [org.clojure/tools.cli "1.0.206"]]
   :plugins [[lein-eftest "0.6.0"]
             [lein-ancient "0.7.0"]]
-  :main wordpuzzle.main
+  :main ^:skip-aot wordpuzzle.main
   :target-path "target/%s"
   :profiles {:dev {:aliases {"build" ["do" "check," "eftest," "run"]}
                    :plugins [[lein-cljfmt "0.6.8"]]}
