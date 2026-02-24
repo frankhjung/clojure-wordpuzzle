@@ -33,7 +33,7 @@ jobs:
       - name: Download wordpuzzle uberjar and dictionary from latest release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release download --pattern "wordpuzzle-*-standalone.jar" --pattern "dictionary"
+        run: gh release download --repo ${{ github.repository }} --pattern "wordpuzzle-*-standalone.jar" --pattern "dictionary"
 
       - name: Run main with size ${{ inputs.SIZE }} and letters ${{ inputs.LETTERS }}
         env:
