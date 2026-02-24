@@ -52,7 +52,7 @@ uberjar:
 
 .PHONY: run-uberjar
 run-uberjar: uberjar
-	java -jar target/uberjar/wordpuzzle-*-standalone.jar --size=7 --letters=cadevrsoi
+	java -jar target/uberjar/wordpuzzle-*-standalone.jar --size=7 --letters=cadevrsoi --dictionary=resources/dictionary
 
 #
 # Targets for CI/CD pipelines (GitHub/GitLab)
@@ -77,14 +77,10 @@ show-profiles:
 
 .PHONY: dictionary
 dictionary:
-ifeq (,$(wildcard /usr/share/dict/british-english-huge))
-	@echo using dictionary from https://raw.githubusercontent.com/dwyl/english-words/master/words.txt
-	@curl -s https://raw.githubusercontent.com/dwyl/english-words/master/words.txt \
-		| LC_ALL=C sort -u > resources/dictionary
+ifeq (,$(wildcard /usr/share/dict/words))
+	@echo Warning: /usr/share/dict/words not found, skipping dictionary generation
 else
-	@echo using dictionary from /usr/share/dict/british-english-huge
-	@cp /usr/share/dict/british-english-huge resources/dictionary
+	@echo filtering 4-letters or more words from dictionary ...
+	@LC_ALL=C grep -E '^[a-z]{4,}$$' /usr/share/dict/words | sort -u > resources/dictionary
+	@echo $(shell wc -l < resources/dictionary) words in dictionary
 endif
-	@LC_ALL=C grep -E '^[a-z]{4,}$$' resources/dictionary \
-		> resources/dictionary.tmp
-	@mv resources/dictionary.tmp resources/dictionary

@@ -43,48 +43,9 @@
   (testing "invalid word because of invalid letter"
     (is (not (spelling-bee? "foobar" "bartez")))))
 
-(def words7norepeats (set ["advices"
-                           "ascrive"
-                           "caserio"
-                           "cervoid"
-                           "codeias"
-                           "codrive"
-                           "codrives"
-                           "coraise"
-                           "cordies"
-                           "croisad"
-                           "croisade"
-                           "discover"
-                           "divorce"
-                           "divorces"
-                           "idocrase"
-                           "radices"
-                           "radicose"
-                           "sarcode"
-                           "sarcoid"
-                           "scaroid"
-                           "scarved"
-                           "scoriae"
-                           "scrived"
-                           "sedovic"
-                           "sidecar"
-                           "varices"
-                           "varicose"
-                           "varicosed"
-                           "viscera"
-                           "voicers"]))
+(def words7norepeats (set ["discover" "divorce" "divorces" "sidecar" "varicose" "viscera"]))
 
-(def words9repeats (set ["acarocecidia"
-                         "acrocoracoid"
-                         "ascaridiasis"
-                         "cervicicardiac"
-                         "codiscoverer"
-                         "codiscoverers"
-                         "crisscrossed"
-                         "crisscrosses"
-                         "rediscovered"
-                         "rediscoverer"
-                         "rediscoveries"]))
+(def words9repeats (set ["crisscrossed" "crisscrosses" "rediscovered"]))
 
 (deftest test-get-words
   (testing "returns expected words without repeats"
