@@ -75,24 +75,13 @@ make run
 Or run directly with Leiningen:
 
 ```bash
-lein with-profile dev run -- --size=7 --letters=cadevrsoi
+lein with-profile dev run -- --size=4 --letters=cadevrsoi
 ```
 
 ### Run Spelling Bee puzzle
 
 ```bash
-$ lein with-profile dev run -- --size=7 --repeats --letters=mitncao
-commotion
-monomania
-maintain
-ammonia
-imitation
-monotonic
-ottoman
-anatomic
-animation
-cinnamon
-minicam
+lein with-profile dev run -- --size=4 --letters=mitncao --repeats
 ```
 
 ### Run standalone jar
@@ -114,7 +103,7 @@ make run-uberjar
 Or manually with Java (use the version tag that matches the GitHub release):
 
 ```bash
-java -jar target/uberjar/wordpuzzle-*-standalone.jar --size=7 --letters=cadevrsoi
+java -jar target/uberjar/wordpuzzle-*-standalone.jar --size=7 --letters=cadevrsoi [--repeats]
 ```
 
 ## Releases
