@@ -40,25 +40,13 @@ jobs:
           # Get the latest release download URL from GitHub API
           DOWNLOAD_URL=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | \
             grep 'browser_download_url' | grep 'standalone.jar' | cut -d '"' -f 4)
-          # Check if we got a URL
+          # Check if we got a valid URL
           if [ -z "$DOWNLOAD_URL" ]; then
             echo "Error: Could not find uberjar in latest release"
-            echo "Latest release info:"
-            curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | grep -E 'tag_name|browser_download_url'
             exit 1
           fi
           # Download the uberjar
-          echo "Downloading from: $DOWNLOAD_URL"
           curl -L --fail -o wordpuzzle-standalone.jar "$DOWNLOAD_URL"
-          # Check if we got a file
-          if [ ! -f wordpuzzle-standalone.jar ]; then
-            echo "Error: Failed to download jar file"
-            exit 1
-          fi
-          # List the downloaded file for verification
-          echo "Downloaded jar file:"
-          ls -lh wordpuzzle-standalone.jar
-          # Save jar location for next step
           echo "JAR_PATH=$(pwd)/wordpuzzle-standalone.jar" >> $GITHUB_ENV
 
       - name: Run main with size ${{ inputs.SIZE }} and letters ${{ inputs.LETTERS }}
@@ -67,21 +55,13 @@ jobs:
           LETTERS: ${{ inputs.LETTERS }}
           REPEATS: ${{ inputs.REPEATS }}
         run: |
-          # Verify jar exists
-          if [ ! -f "${{ env.JAR_PATH }}" ]; then
-            echo "Error: JAR file not found at ${{ env.JAR_PATH }}"
-            exit 1
-          fi
-          echo "JAR_PATH: ${{ env.JAR_PATH }}"
-          # extract leading integer component from SIZE
+          # Extract leading integer component from SIZE
           SIZE_INT="${SIZE%%[^0-9]*}"
-          # normalize letters to lowercase
+          # Normalize letters to lowercase
           LETTERS_LOWER="${LETTERS,,}"
           # Build argument array
           ARGS=("--size=$SIZE_INT" "--letters=$LETTERS_LOWER")
-          if [ "$REPEATS" = "true" ]; then
-            ARGS+=("--repeats")
-          fi
-          # call the jar with the appropriate arguments
-          echo "Running: java -jar ${{ env.JAR_PATH }} ${ARGS[@]}"
+          # Add repeats flag if true
+          [[ "$REPEATS" = "true" ]] && ARGS+=(--repeats)
+          # Run the jar with the appropriate arguments
           java -jar "${{ env.JAR_PATH }}" "${ARGS[@]}"
