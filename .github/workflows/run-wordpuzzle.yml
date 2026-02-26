@@ -29,6 +29,7 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
+          architecture: x64
 
       - name: Download wordpuzzle uberjar and dictionary from latest release
         env:
@@ -41,13 +42,15 @@ jobs:
           LETTERS: ${{ inputs.LETTERS }}
           REPEATS: ${{ inputs.REPEATS }}
         run: |
+          # Find the JAR
+          JAR=$(ls wordpuzzle-*-standalone.jar | head -1)
           # Extract leading integer component from SIZE
           SIZE_INT="${SIZE%%[^0-9]*}"
           # Normalize letters to lowercase
           LETTERS_LOWER="${LETTERS,,}"
-          # Build argument array
-          ARGS=("--size=$SIZE_INT" "--letters=$LETTERS_LOWER" "--dictionary=dictionary")
+          # Prepare arguments
+          ARGS="--size=${SIZE} --letters=${LETTERS} --dictionary=dictionary"
           # Add repeats flag if true
-          [[ "$REPEATS" = "true" ]] && ARGS+=(--repeats)
-          # Run the jar with the appropriate arguments
-          java -jar wordpuzzle-*-standalone.jar "${ARGS[@]}"
+          if [ "${REPEATS}" = "true" ]; then ARGS="${ARGS} --repeats"; fi
+          echo "Running: java -jar ${JAR} ${ARGS}"
+          java -jar "${JAR}" ${ARGS}

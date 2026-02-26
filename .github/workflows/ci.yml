@@ -41,6 +41,9 @@ jobs:
       - name: Test
         run: lein with-profile cicd test
 
+      - name: Run main with args
+        run: lein with-profile cicd run -- --size=7 --letters=cadevrsoi
+
       - name: Build uberjar
         if: startsWith(github.ref, 'refs/tags/')
         run: lein with-profile cicd,uberjar uberjar
@@ -57,6 +60,3 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run main with args
-        run: lein with-profile cicd run -- --size=7 --letters=cadevrsoi
