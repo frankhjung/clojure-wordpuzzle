@@ -1,7 +1,7 @@
 ---
 run_wordpuzzle:
   stage: deploy
-  image: eclipse-temurin:17-jre-alpine
+  image: eclipse-temurin:21-jre-alpine
   needs:
     - job: package_and_release
       optional: true

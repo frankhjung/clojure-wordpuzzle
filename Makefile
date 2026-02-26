@@ -13,7 +13,7 @@ default: clean fmt check compile test
 .PHONY: help
 help:
 	@echo "Available make targets:"
-	@grep -E '^[a-zA-Z_-]+:' Makefile | sed 's/:.*$$//' | sort | uniq | xargs -n1 printf "  %s\n"
+	@grep -E '^[a-zA-Z_-]+:' Makefile | sed 's/:.*$$//' | sort -u | xargs -n1 printf "  %s\n"
 
 #
 # Local development targets
