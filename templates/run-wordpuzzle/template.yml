@@ -1,0 +1,25 @@
+---
+run_wordpuzzle:
+  stage: deploy
+  image: eclipse-temurin:17-jre-alpine
+  needs:
+    - job: package_and_release
+      optional: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: always
+  script:
+    - apk add --no-cache curl ca-certificates file
+    - echo "Running wordpuzzle for release ${TARGET_TAG}"
+    - |
+      curl --fail --show-error \
+        --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --location \
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/wordpuzzle/${TARGET_TAG}/wordpuzzle-release.tar.gz" \
+        --output wordpuzzle-release.tar.gz
+    - tar xzf wordpuzzle-release.tar.gz
+    - |
+      JAR=$(ls wordpuzzle-*-standalone.jar | head -1)
+      ARGS="--size=${SIZE} --letters=${LETTERS} --dictionary=dictionary"
+      if [ "${REPEATS}" = "true" ]; then ARGS="${ARGS} --repeats"; fi
+      echo "Running: java -jar ${JAR} ${ARGS}"
+      java -jar "${JAR}" ${ARGS}

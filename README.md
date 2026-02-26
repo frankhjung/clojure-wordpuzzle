@@ -14,9 +14,9 @@ See also the other language solutions:
 
 ## Build
 
-This project provides convenient `Makefile` targets that wrap common Leiningen
-tasks. Use `make` for local development; the `cicd` prefixed targets are
-provided for pipeline usage.
+This project provides convenient `Makefile` targets that wrap common
+Leiningen tasks. Use `make` for local development; the `cicd` prefixed
+targets are provided for pipeline usage.
 
 Common targets:
 
@@ -100,32 +100,70 @@ Run the standalone jar (build first using `make uberjar` or via CI):
 make run-uberjar
 ```
 
-Or manually with Java (use the version tag that matches the GitHub release):
+Or manually with Java (replace `*` with the version from the release):
 
 ```bash
-java -jar target/uberjar/wordpuzzle-*-standalone.jar --size=7 --letters=cadevrsoi [--repeats]
+java -jar target/uberjar/wordpuzzle-*-standalone.jar \
+  --size=7 --letters=cadevrsoi --dictionary=resources/dictionary
 ```
 
 ## Releases
 
-The project’s CI pipeline builds and publishes an uberjar on every git tag
-matching `v*` by creating a GitHub release. To install a released version,
-simply download the asset from the
-[releases page](https://github.com/frankhjung/clojure-wordpuzzle/releases) or
-use the `run-wordpuzzle.yml` workflow which automatically fetches the latest
-jar.
+The project's CI pipeline builds and publishes an uberjar on every
+git tag matching `v*` by creating a GitLab release. To install a
+released version, download the asset from the
+[GitLab releases page](https://gitlab.com/frankhjung1/clojure-wordpuzzle/-/releases)
+or trigger the manual `run_wordpuzzle` pipeline which automatically
+fetches the packaged JAR.
+
+## GitLab CI Workflow
+
+The pipeline has three jobs across two stages. The diagram below
+shows how they connect for normal pushes, tag releases, and manual
+web-triggered runs.
+
+```mermaid
+---
+config:
+  look: handDrawn
+---
+graph TD
+    subgraph ".gitlab-ci.yml"
+      A["Push or Tag"] --> B["build_and_test"]
+      B -->|"Tag v*"| C["package_and_release"]
+      C --> D["Upload to Generic Package Registry"]
+      B --> E["Complete"]
+      D --> E
+    end
+    subgraph "run-wordpuzzle template"
+      F["Manual Web Trigger"]
+      F -->|"target_tag, size, letters, repeats"| G["run_wordpuzzle"]
+    end
+    G --> E
+```
+
+- **`build_and_test`** — runs on every non-web push;
+  `lein check, compile, test, uberjar`; produces an uberjar
+  and dictionary as artifacts.
+- **`package_and_release`** — runs on tag pushes (`^v`); stages
+  JAR and dictionary flat, tars them, uploads to the GitLab
+  Generic Package Registry, and creates a GitLab Release.
+- **`run_wordpuzzle`** — manually triggered from the GitLab web
+  UI; downloads the tarball for the given `target_tag`, extracts
+  it, and runs `java -jar wordpuzzle-*-standalone.jar` with
+  `size`, `letters`, and `repeats` inputs.
 
 ## Updating dependencies
 
-Dependencies for the project are defined in `project.clj`. After changing
-versions (or adding new libraries) simply fetch them with:
+Dependencies for the project are defined in `project.clj`. After
+changing versions (or adding new libraries) simply fetch them with:
 
 ```bash
 lein deps
 ```
 
-The project already includes the `lein-ancient` plugin, which can inspect and
-upgrade out‑of‑date coordinates:
+The project already includes the `lein-ancient` plugin, which can
+inspect and upgrade out‑of‑date coordinates:
 
 ```bash
 # show any dependencies that have newer releases available
@@ -135,8 +173,8 @@ lein ancient
 lein ancient upgrade
 ```
 
-Remember to run `lein deps` again after editing `project.clj` to pull down any
-new artifacts.
+Remember to run `lein deps` again after editing `project.clj` to
+pull down any new artifacts.
 
 ## LICENSE
 
