@@ -109,12 +109,45 @@ java -jar target/uberjar/wordpuzzle-*-standalone.jar \
 
 ## Releases
 
-The project's CI pipeline builds and publishes an uberjar on every
-git tag matching `v*` by creating a GitLab release. To install a
-released version, download the asset from the
-[GitLab releases page](https://gitlab.com/frankhjung1/clojure-wordpuzzle/-/releases)
-or trigger the manual `run_wordpuzzle` pipeline which automatically
-fetches the packaged JAR.
+The CI pipelines build and publish an uberjar on every git tag
+matching `v*`:
+
+- **GitLab** — creates a GitLab Release and uploads the tarball to
+  the Generic Package Registry. Download from the
+  [GitLab releases page](https://gitlab.com/frankhjung1/clojure-wordpuzzle/-/releases)
+  or trigger the manual `run_wordpuzzle` pipeline.
+- **GitHub** — creates a GitHub Release with the standalone JAR and
+  dictionary attached as assets. Download from the
+  [GitHub releases page](https://github.com/frankhjung1/clojure-wordpuzzle/releases)
+  or trigger the manual `Run Wordpuzzle` workflow.
+
+### Tagging a Release
+
+Release tags follow [Semantic Versioning](https://semver.org/) and
+must be prefixed with `v` (e.g. `v1.0.0`). To create a release:
+
+1. Update the version in `project.clj`:
+
+   ```clojure
+   (defproject wordpuzzle "1.0.0"
+   ```
+
+2. Commit and tag:
+
+   ```bash
+   git add project.clj
+   git commit -m "Release v1.0.0"
+   git tag v1.0.0
+   ```
+
+3. Push the commit and tag:
+
+   ```bash
+   git push origin master --tags
+   ```
+
+The tag push triggers the release jobs on both GitLab
+(`package_and_release`) and GitHub (`Create/Update Release`).
 
 ## GitLab CI Workflow
 
@@ -152,6 +185,46 @@ graph TD
   UI; downloads the tarball for the given `target_tag`, extracts
   it, and runs `java -jar wordpuzzle-*-standalone.jar` with
   `size`, `letters`, and `repeats` inputs.
+
+## GitHub Actions Workflow
+
+The project also has GitHub Actions workflows. The `ci.yml` workflow
+builds, tests, and optionally releases on tag pushes. The
+`run-wordpuzzle.yml` workflow is manually triggered to run the puzzle
+solver using a release artifact.
+
+```mermaid
+---
+config:
+  look: handDrawn
+---
+graph TD
+    subgraph "ci.yml"
+      A["Push or PR"] --> B["Check"]
+      B --> C["Build"]
+      C --> D["Test"]
+      D --> E["Run main with args"]
+      D -->|"Tag v*"| F["Build uberjar"]
+      F --> G["Create GitHub Release"]
+    end
+    subgraph "run-wordpuzzle.yml"
+      H["Manual Dispatch"]
+      H -->|"SIZE, LETTERS, REPEATS"| I["Download release artifacts"]
+      I --> J["Run wordpuzzle"]
+    end
+    E --> K["Complete"]
+    G --> K
+    J --> K
+```
+
+- **`build-test-run`** — runs on every push and pull request;
+  `lein check, compile, test`; on tag pushes (`v*`), also builds
+  an uberjar and creates a GitHub Release with the JAR and
+  dictionary.
+- **`run-wordpuzzle`** — manually triggered via workflow dispatch;
+  downloads the uberjar and dictionary from the latest release,
+  then runs `java -jar wordpuzzle-*-standalone.jar` with `SIZE`,
+  `LETTERS`, and `REPEATS` inputs.
 
 ## Updating dependencies
 
