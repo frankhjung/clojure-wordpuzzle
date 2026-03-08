@@ -1,10 +1,10 @@
-(defproject wordpuzzle "1.0.0"
+(defproject wordpuzzle "1.0.1"
   :description "Clojure solution to letter word puzzles"
   :url "https://gitlab.com/frankhjung1/clojure-wordpuzzle"
   :license {:name "MIT License"
             :url "https://spdx.org/licenses/MIT.html"}
   :dependencies [[org.clojure/clojure "1.12.4"]
-                 [org.clojure/tools.cli "1.0.206"]]
+                 [org.clojure/tools.cli "1.3.250"]]
   :plugins [[lein-eftest "0.6.0"]
             [lein-ancient "0.7.0"]]
   :main ^:skip-aot wordpuzzle.main

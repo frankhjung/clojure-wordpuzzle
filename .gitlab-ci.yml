@@ -2,7 +2,7 @@ spec:
   inputs:
     target_tag:
       type: string
-      default: "v1.0.0"
+      default: "v1.0.1"
       regex: ^v\d\.\d+(\.\d+)$
       description: "Release tag to run"
     size:
