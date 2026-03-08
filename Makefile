@@ -81,6 +81,8 @@ ifeq (,$(wildcard /usr/share/dict/words))
 	@echo Warning: /usr/share/dict/words not found, skipping dictionary generation
 else
 	@echo filtering 4-letters or more words from dictionary ...
-	@LC_ALL=C grep -E '^[a-z]{4,}$$' /usr/share/dict/words | sort -u > resources/dictionary
+	@LC_ALL=C grep -E '^[a-z]{4,}$$' /usr/share/dict/words \
+	  | grep -Ev '^m{0,3}(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})$$' \
+	  | sort -u > resources/dictionary
 	@echo $(shell wc -l < resources/dictionary) words in dictionary
 endif
