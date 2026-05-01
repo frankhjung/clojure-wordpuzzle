@@ -7,12 +7,16 @@ LEIN_CICD = lein with-profile cicd
 LEIN_UBERJAR = lein with-profile cicd,uberjar
 
 .PHONY: default
-default: clean fmt check compile test ## Default target: clean, format, lint, compile, and test the code
+default: clean fmt check compile test ## Run default build pipeline
 
-.PHONY: help ## Show this help message
-help: ## Show this help message
-	@echo Available targets:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-15s %s\n", $$1, $$2}'
+.PHONY: help
+help: ## Display this help
+	@printf "Default goal: \033[36m%s\033[0m\n" "${.DEFAULT_GOAL}"
+	@awk 'BEGIN {FS = ":.*##"; \
+	  printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} \
+	    /^[a-zA-Z_-]+:.*?##/ \
+	    { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 }' \
+	  $(MAKEFILE_LIST)
 
 #
 # Local development targets
@@ -23,11 +27,11 @@ clean: ## Clean build artifacts
 	$(LEIN) clean
 
 .PHONY: fmt
-fmt: ## Format source code using cljfmt
+fmt: ## Format source code with cljfmt
 	$(LEIN) cljfmt fix
 
 .PHONY: check
-check: ## Check source code formatting using cljfmt
+check: ## Check source formatting with cljfmt
 	$(LEIN) cljfmt check
 
 .PHONY: compile
@@ -35,22 +39,22 @@ compile: ## Compile source code
 	$(LEIN) compile
 
 .PHONY: test
-test: ## Run tests using eftest
+test: ## Run tests with eftest
 	$(LEIN) eftest
 
 .PHONY: run
-run: ## Run the main function with example puzzles
+run: ## Run the application with example puzzles
 	@echo 9-Letter word puzzle:
 	$(LEIN) run -- --size=7 --letters=cadevrsoi
 	@echo Spelling Bee puzzle:
 	$(LEIN) run -- --size=7 --repeats --letters=mitncao
 
 .PHONY: uberjar
-uberjar: ## Build a standalone (über) JAR
+uberjar: ## Build standalone uberjar
 	$(LEIN_UBERJAR) uberjar
 
 .PHONY: run-uberjar
-run-uberjar: uberjar ## Run the standalone JAR
+run-uberjar: uberjar ## Build and run the standalone uberjar
 	java -jar target/uberjar/wordpuzzle-*-standalone.jar --size=7 --letters=cadevrsoi --dictionary=resources/dictionary
 
 #
@@ -58,24 +62,24 @@ run-uberjar: uberjar ## Run the standalone JAR
 #
 
 .PHONY: cicd-clean
-cicd-clean: ## Clean build artifacts using cicd profile
+cicd-clean: ## Clean build artifacts (CI/CD)
 	$(LEIN_CICD) clean
 
 
 .PHONY: cicd-test
-cicd-test: ## Run tests using eftest with cicd profile
+cicd-test: ## Run tests with eftest (CI/CD)
 	$(LEIN_CICD) eftest
 
 #
 # Utility target to show supported lein profiles
 #
 .PHONY: show-profiles
-show-profiles: ## Show available Leiningen profiles from project.clj
+show-profiles: ## Show supported Leiningen profiles
 	@echo "Project :profiles from project.clj:"
 	@grep -n ":profiles" -A20 project.clj | sed 's/^/    /'
 
 .PHONY: dictionary
-dictionary: ## Generate a dictionary file from /usr/share/dict/words, filtering out short words and Roman numerals
+dictionary: ## Generate dictionary from /usr/share/dict/words
 ifeq (,$(wildcard /usr/share/dict/words))
 	@echo Warning: /usr/share/dict/words not found, skipping dictionary generation
 else
