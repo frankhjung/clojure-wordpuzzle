@@ -1,10 +1,16 @@
 (ns wordpuzzle.core-test
   (:require [clojure.test :refer [deftest is testing]]
-            [wordpuzzle.core :refer [get-words
-                                     valid-letters?
+            [clojure.java.io :as io]
+            [wordpuzzle.core :refer [valid-letters?
                                      valid-size?
                                      nine-letters?
-                                     spelling-bee?]]))
+                                     spelling-bee?
+                                     find-valid-words]]))
+
+(defn get-words-helper "Test helper to simulate the old get-words behavior"
+  [letters size dictionary repeats?]
+  (with-open [reader (io/reader dictionary)]
+    (find-valid-words (line-seq reader) letters (str (first letters)) size repeats?)))
 
 (deftest test-valid-letters
   (testing "letters valid (≥7 chars)"
@@ -43,6 +49,25 @@
   (testing "invalid word because of invalid letter"
     (is (not (spelling-bee? "foobar" "bartez")))))
 
+(deftest test-find-valid-words
+  (testing "identifies valid words from a sequence"
+    (let [dictionary ["apple" "apply" "pale" "plea" "leal" "app"]
+          letters "apple"
+          mandatory "a"
+          size 4
+          expected #{"apple" "pale" "plea"}]
+      (is (= expected (find-valid-words dictionary letters mandatory size false)))))
+  (testing "handles repeats correctly"
+    (let [dictionary ["apple" "apply" "pale" "plea" "leal" "app" "peel"]
+          letters "aple"
+          mandatory "a"
+          size 4
+          expected #{"apple" "leal" "pale" "plea"}]
+      ; "peel" has 'e' twice but no 'a' (mandatory)
+      ; "leal" has 'l' twice, and "aple" has 'l'. In Spelling Bee (repeats=true), this is OK.
+      ; "apply" has 'y' which is not in 'aple'
+      (is (= expected (find-valid-words dictionary letters mandatory size true))))))
+
 (def words7norepeats (set ["discover" "divorce" "divorces" "sidecar" "varicose" "viscera"]))
 
 (def words9repeats (set ["crisscrossed" "crisscrosses" "rediscovered"]))
@@ -50,13 +75,13 @@
 (deftest test-get-words
   (testing "returns expected words without repeats"
     (let [expected words7norepeats
-          actual (get-words "cadevrsoi" 7 "resources/dictionary" false)]
+          actual (get-words-helper "cadevrsoi" 7 "resources/dictionary" false)]
       (is (= expected actual))))
   (testing "returns expected words with repeats"
     (let [expected words9repeats
-          actual (get-words "cadevrsoi" 12 "resources/dictionary" true)]
+          actual (get-words-helper "cadevrsoi" 12 "resources/dictionary" true)]
       (is (= expected actual))))
   (testing "words longer than letters are ignored if repeats=false"
     (let [letters "abcd"
-          results (get-words letters 4 "resources/dictionary" false)]
+          results (get-words-helper letters 4 "resources/dictionary" false)]
       (is (every? #(<= (count %) (count letters)) results)))))

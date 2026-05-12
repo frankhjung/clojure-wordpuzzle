@@ -1,6 +1,5 @@
 (ns wordpuzzle.core
-  (:require [clojure.java.io :as io]
-            [clojure.string :refer [includes?]]))
+  (:require [clojure.string :refer [includes?]]))
 
 (defn valid-size? "Minimum word size is 4 letters"
   [size] (>= size 4))
@@ -25,17 +24,15 @@
               (<= cnt (get avail ch 0)))
             (frequencies word))))
 
-(defn get-words "Get list of valid words from the dictionary"
-  [letters size dictionary repeats?]
-  (with-open [reader (io/reader dictionary)]
-    (let [max-len (if repeats? Integer/MAX_VALUE (count letters))
-          mandatory-letter (str (first letters))
-          valid-word? (if repeats?
-                        #(spelling-bee? letters %)
-                        #(nine-letters? letters %))]
-      (->> (line-seq reader) ; read all words from dictionary
-           (filter #(<= size (count %))) ; minimum size
-           (filter #(<= (count %) max-len)) ; never longer than available letters
-           (filter #(includes? % mandatory-letter)) ; has mandatory letter
-           (filter valid-word?) ; is a valid word
-           (into (sorted-set))))))
+(defn find-valid-words "Get list of valid words from a dictionary sequence"
+  [word-seq letters mandatory-letter size repeats?]
+  (let [max-len (if repeats? Integer/MAX_VALUE (count letters))
+        valid-word? (if repeats?
+                      #(spelling-bee? letters %)
+                      #(nine-letters? letters %))]
+    (->> word-seq
+         (filter #(<= size (count %))) ; minimum size
+         (filter #(<= (count %) max-len)) ; never longer than available letters
+         (filter #(includes? % mandatory-letter)) ; has mandatory letter
+         (filter valid-word?) ; is a valid word
+         (into (sorted-set)))))

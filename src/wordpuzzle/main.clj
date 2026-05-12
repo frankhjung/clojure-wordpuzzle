@@ -3,7 +3,7 @@
   (:require [clojure.tools.cli :refer [parse-opts]]
             [clojure.string :refer [join]]
             [clojure.java.io :as io]
-            [wordpuzzle.core :refer [valid-size? valid-letters? get-words]]))
+            [wordpuzzle.core :refer [valid-size? valid-letters? find-valid-words]]))
 
 (defn usage "Wordpuzzle usage"
   [options-summary]
@@ -35,6 +35,7 @@
 
 (def cli-options "Process command line arguments"
   [["-h" "--help" "This help text"]
+   ["-v" "--version" "Show version"]
    ["-d" "--dictionary" "Alternate word dictionary"
     :default "resources/dictionary"
     :required "STRING"
@@ -61,12 +62,24 @@
   [errors]
   (join \newline errors))
 
+(defn project-version "Read project version from pom.properties"
+  []
+  (or
+   (when-let [pom (io/resource "META-INF/maven/wordpuzzle/wordpuzzle/pom.properties")]
+     (let [props (java.util.Properties.)]
+       (with-open [reader (io/reader pom)]
+         (.load props reader))
+       (.getProperty props "version")))
+   "unknown"))
+
 (defn validate-opts "Check command line arguments"
   [args]
   (let [{:keys [arguments errors options summary]} (parse-opts args cli-options)]
     (cond
       ; show help
       (:help options) {:exit-message (usage summary), :ok? true}
+      ; show version
+      (:version options) {:exit-message (str "wordpuzzle " (project-version)), :ok? true}
       ; show errors
       errors {:exit-message (error-msg errors), :ok? false}
       ; show usage if arguments provided
@@ -84,8 +97,9 @@
 
 (defn solve "Solve word puzzle"
   [letters size dictionary repeats]
-  (let [words (get-words letters size dictionary repeats)]
-    (dorun (map println words))))
+  (with-open [reader (io/reader dictionary)]
+    (let [words (find-valid-words (line-seq reader) letters (str (first letters)) size repeats)]
+      (dorun (map println words)))))
 
 (defn -main "Main - read options and solve word puzzle"
   [& args]

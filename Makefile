@@ -47,7 +47,7 @@ run: ## Run the application with example puzzles
 	@echo 9-Letter word puzzle:
 	$(LEIN) run -- --size=7 --letters=cadevrsoi
 	@echo Spelling Bee puzzle:
-	$(LEIN) run -- --size=7 --repeats --letters=mitncao
+	$(LEIN) run -- --size=7 --letters=mitncao --repeats
 
 .PHONY: uberjar
 uberjar: ## Build standalone uberjar
@@ -56,6 +56,14 @@ uberjar: ## Build standalone uberjar
 .PHONY: run-uberjar
 run-uberjar: uberjar ## Build and run the standalone uberjar
 	java -jar target/uberjar/wordpuzzle-*-standalone.jar --size=7 --letters=cadevrsoi --dictionary=resources/dictionary
+
+.PHONY: show-help
+show-help: ## Show program help message
+	$(LEIN) run -- --help
+
+.PHONY: version
+version: ## Show program version
+	$(LEIN) run -- --version
 
 #
 # Targets for CI/CD pipelines (GitHub/GitLab)

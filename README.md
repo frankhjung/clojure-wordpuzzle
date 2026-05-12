@@ -123,12 +123,12 @@ The CI pipelines build and publish an uberjar on every git tag matching `v*`:
 ### Tagging a Release
 
 Release tags follow [Semantic Versioning](https://semver.org/) and must be
-prefixed with `v` (e.g. `v1.0.1`). To create a release:
+prefixed with `v` (e.g. `v1.0.2`). To create a release:
 
 1. Update the version in [project.clj](project.clj):
 
    ```clojure
-   (defproject wordpuzzle "1.0.1"
+   (defproject wordpuzzle "1.0.2"
    ```
 
 2. Update the default tag version in [`.gitlab-ci.yml`](.gitlab-ci.yml): (this
@@ -138,15 +138,16 @@ prefixed with `v` (e.g. `v1.0.1`). To create a release:
    ```yaml
    inputs:
      target_tag:
-      default: "v1.0.1"
+      default: "v1.0.2"
    ```
 
 3. Commit and tag:
 
    ```bash
    git add project.clj
-   git commit -m "Release v1.0.1"
-   git tag v1.0.1
+   git commit -m "release v1.0.2"
+   git tag v1.0.2
+   git push --tags origin master
    ```
 
 4. Push the commit and tag:
